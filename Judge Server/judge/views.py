@@ -255,7 +255,7 @@ def runcode(request):
     if language == "C":
         language = "c"
     elif language == "C++":
-        language = "cpp"
+        language = "42"
     elif language == "JAVA":
         language = "java"
     else:
@@ -263,15 +263,24 @@ def runcode(request):
     code = request.POST['code']
     custom_input = request.POST['custom_input']
     payload = {
-        "code": code,
+        "sourceCode": code,
         "language": language,
-        "input": custom_input
+        "input": custom_input,
+	"contestCode": PRACTICE,
+	"isCodeVisualizer": 0
     }
     import urllib.request
-    req = urllib.request.Request("https://codexweb.netlify.app/.netlify/functions/enforceCode", method="POST")
+    req = urllib.request.Request("https://www.codechef.com/api/ide/run/all", method="POST")
     req.add_header('Content-Type', 'application/json')
     data = json.dumps(payload)
     data = data.encode()
+    response = urllib.request.urlopen(req, data=data)
+    response = response.read().decode('UTF-8')
+    response = json.loads(response)
+    timestamp = response['timestamp']
+    response_url = 'https://www.codechef.com/api/ide/run/all?timestamp=' + timestamp + '&isCodeVisualizer=0'
+    req = urllib.request.Request("response_url", method="GET")
+    req.add_header('Content-Type', 'application/json')
     response = urllib.request.urlopen(req, data=data)
     response = response.read().decode('UTF-8')
     response = json.loads(response)
